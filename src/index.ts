@@ -16,16 +16,38 @@ abstract class NinjaNode {
   }
 }
 
-export interface NinjaBuildOpts {
+export type BuildFileOptions = {
   requiredVersion?: string;
   builddir?: string;
   default?: string | string[];
-}
+};
+
+export type RuleOptions = {
+  depfile?: string;
+  deps?: 'gcc' | 'msvc';
+  msvc_deps_prefix?: string;
+  description?: string;
+  dyndep?: string;
+  generator?: boolean;
+  in?: string;
+  in_newline?: string;
+  out?: string;
+  restat?: boolean;
+} & ({} | { rspfile: string; rspfile_content: string });
+
+export type EdgeOptions = {
+  implicitOuts?: string[];
+  implicitDeps?: string[];
+  orderDeps?: string[];
+  validations?: string[];
+  dyndep?: string;
+  pool?: string;
+};
 
 export class NinjaBuildFile extends NinjaNode {
   private readonly nodes: NinjaNode[] = [];
 
-  constructor(public readonly options?: NinjaBuildOpts) {
+  constructor(public readonly options?: BuildFileOptions) {
     super();
   }
 
@@ -45,11 +67,7 @@ export class NinjaBuildFile extends NinjaNode {
   private postamble(): NinjaNode[] {
     const postambleNodes = [];
     if (this.options?.default != null) {
-      const def =
-        typeof this.options.default === 'string'
-          ? [this.options.default]
-          : this.options.default;
-      postambleNodes.push(new Raw(`default ${fileList(def)}`));
+      postambleNodes.push(new Raw(`default ${fileList(this.options.default)}`));
     }
     return postambleNodes;
   }
@@ -119,19 +137,6 @@ class Binding extends NinjaNode {
   }
 }
 
-export type RuleOptions = {
-  depfile?: string;
-  deps?: 'gcc' | 'msvc';
-  msvc_deps_prefix?: string;
-  description?: string;
-  dyndep?: string;
-  generator?: boolean;
-  in?: string;
-  in_newline?: string;
-  out?: string;
-  restat?: boolean;
-} & ({} | { rspfile: string; rspfile_content: string });
-
 class Rule extends NinjaNode {
   constructor(
     public readonly name: string,
@@ -155,15 +160,6 @@ class Rule extends NinjaNode {
     }
   }
 }
-
-export type EdgeOptions = {
-  implicitOuts?: string[];
-  implicitDeps?: string[];
-  orderDeps?: string[];
-  validations?: string[];
-  dyndep?: string;
-  pool?: string;
-};
 
 class Edge extends NinjaNode {
   constructor(
