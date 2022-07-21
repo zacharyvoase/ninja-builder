@@ -118,6 +118,31 @@ describe('NinjaBuild', () => {
       ninja
     );
   });
+
+  it('adds raw strings/comments/etc. to the output', () => {
+    const ninja = new NinjaBuildFile({
+      requiredVersion: '1.7',
+      default: 'hello',
+    });
+    ninja.bind('cflags', '-Wall');
+    ninja.raw('# This is a poor implementation of a cc rule.');
+    ninja.rule('cc', 'cc $cflags $in -o $out');
+    ninja.raw('# This is also not that great.');
+    ninja.build('hello', 'cc', 'hello.c');
+    check(
+      `
+      ninja_required_version = 1.7
+      cflags = -Wall
+      # This is a poor implementation of a cc rule.
+      rule cc
+        command = cc $cflags $in -o $out
+      # This is also not that great.
+      build hello: cc hello.c
+      default hello
+      `,
+      ninja
+    );
+  });
 });
 
 function check(expected: string, ninja: { toString(): string }) {

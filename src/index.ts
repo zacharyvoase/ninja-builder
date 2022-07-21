@@ -87,6 +87,12 @@ export class NinjaBuildFile extends NinjaNode {
     this.nodes.push(new Edge(outputs, rule, inputs, options, bindings));
     return this;
   }
+
+  /** Add a raw string to the output. A newline will be added to the end. */
+  raw(s: string): this {
+    this.nodes.push(new Raw(s));
+    return this;
+  }
 }
 
 class Raw extends NinjaNode {
