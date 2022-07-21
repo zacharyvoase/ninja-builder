@@ -5,8 +5,10 @@ const INDENT = '  ';
 
 /** Any kind of node that can be output to a Ninja file. */
 abstract class NinjaNode {
+  /** Write this node to something with a write(s: string) method. */
   abstract writeTo(w: Writable): void;
 
+  /** Convert this node to a string, using its writeTo() method. */
   toString(): string {
     const writable = new StringWritable();
     this.writeTo(writable);
@@ -47,7 +49,7 @@ export class NinjaBuildFile extends NinjaNode {
         typeof this.options.default === 'string'
           ? [this.options.default]
           : this.options.default;
-      postambleNodes.push(new RawLine(`default ${fileList(def)}`));
+      postambleNodes.push(new Raw(`default ${fileList(def)}`));
     }
     return postambleNodes;
   }
@@ -62,21 +64,24 @@ export class NinjaBuildFile extends NinjaNode {
     }
   }
 
+  /** Bind a variable name to a value. */
   bind(name: string, value: string): this {
     this.nodes.push(new Binding(name, value));
     return this;
   }
 
-  rule(name: string, command: string, options?: NinjaRuleOpts): this {
+  /** Define a named rule. */
+  rule(name: string, command: string, options?: RuleOptions): this {
     this.nodes.push(new Rule(name, command, options));
     return this;
   }
 
+  /** Define a build edge (how to build outputs from inputs via a rule). */
   build(
     outputs: string | string[],
     rule: string,
     inputs: string | string[],
-    options?: NinjaEdgeOpts,
+    options?: EdgeOptions,
     bindings?: Record<string, string>
   ): this {
     this.nodes.push(new Edge(outputs, rule, inputs, options, bindings));
@@ -84,7 +89,7 @@ export class NinjaBuildFile extends NinjaNode {
   }
 }
 
-class RawLine extends NinjaNode {
+class Raw extends NinjaNode {
   constructor(public readonly string: string) {
     super();
   }
@@ -108,7 +113,7 @@ class Binding extends NinjaNode {
   }
 }
 
-type NinjaRuleOpts = {
+export type RuleOptions = {
   depfile?: string;
   deps?: 'gcc' | 'msvc';
   msvc_deps_prefix?: string;
@@ -125,7 +130,7 @@ class Rule extends NinjaNode {
   constructor(
     public readonly name: string,
     public readonly command: string,
-    public readonly options: NinjaRuleOpts = {}
+    public readonly options: RuleOptions = {}
   ) {
     super();
   }
@@ -145,7 +150,7 @@ class Rule extends NinjaNode {
   }
 }
 
-type NinjaEdgeOpts = {
+export type EdgeOptions = {
   implicitOuts?: string[];
   implicitDeps?: string[];
   orderDeps?: string[];
@@ -159,7 +164,7 @@ class Edge extends NinjaNode {
     public readonly outputs: string | string[],
     public readonly rule: string,
     public readonly inputs: string | string[],
-    public readonly options: NinjaEdgeOpts = {},
+    public readonly options: EdgeOptions = {},
     public readonly bindings: Record<string, string> = {}
   ) {
     super();
