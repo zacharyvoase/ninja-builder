@@ -1,6 +1,6 @@
 {
   "name": "ninja-builder",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Create ninja build files programmatically in JS/TS",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
