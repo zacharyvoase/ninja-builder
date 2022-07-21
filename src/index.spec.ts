@@ -143,6 +143,49 @@ describe('NinjaBuild', () => {
       ninja
     );
   });
+
+  it('adds pool declarations', () => {
+    const ninja = new NinjaBuildFile({
+      requiredVersion: '1.7',
+    });
+    ninja.pool('link_pool', 4);
+    check(
+      `
+      ninja_required_version = 1.7
+      pool link_pool
+        depth = 4
+      `,
+      ninja
+    );
+  });
+
+  it('adds includes', () => {
+    const ninja = new NinjaBuildFile({
+      requiredVersion: '1.7',
+    });
+    ninja.include('another.ninja');
+    check(
+      `
+      ninja_required_version = 1.7
+      include another.ninja
+      `,
+      ninja
+    );
+  });
+
+  it('adds subninjas', () => {
+    const ninja = new NinjaBuildFile({
+      requiredVersion: '1.7',
+    });
+    ninja.subninja('another.ninja');
+    check(
+      `
+      ninja_required_version = 1.7
+      subninja another.ninja
+      `,
+      ninja
+    );
+  });
 });
 
 function check(expected: string, ninja: { toString(): string }) {

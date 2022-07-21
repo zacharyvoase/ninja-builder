@@ -111,6 +111,24 @@ export class NinjaBuildFile extends NinjaNode {
     this.nodes.push(new Raw(s));
     return this;
   }
+
+  /** Add a subninja reference. */
+  subninja(path: string): this {
+    this.nodes.push(new Raw(`subninja ${path}`));
+    return this;
+  }
+
+  /** Add an include reference. */
+  include(path: string): this {
+    this.nodes.push(new Raw(`include ${path}`));
+    return this;
+  }
+
+  /** Define a pool with a given depth. */
+  pool(name: string, depth: number): this {
+    this.nodes.push(new Raw(`pool ${name}\n${INDENT}depth = ${depth}`));
+    return this;
+  }
 }
 
 class Raw extends NinjaNode {
