@@ -1,6 +1,6 @@
 {
   "extends": "@tsconfig/node18/tsconfig.json",
-  "files": ["src/index.ts"],
+  "files": ["src/index.ts", "src/util.ts"],
   "compilerOptions": {
     "declaration": true,
     "outDir": "dist"
