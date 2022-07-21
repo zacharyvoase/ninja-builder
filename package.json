@@ -1,0 +1,32 @@
+{
+  "name": "ninja-builder",
+  "version": "0.0.1",
+  "description": "Create ninja build files programmatically in JS/TS",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "mocha -r ts-node/register src/**.spec.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zacharyvoase/ninja-builder.git"
+  },
+  "keywords": [
+    "ninja",
+    "build",
+    "generator",
+    "typescript"
+  ],
+  "author": "Zack Voase",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/zacharyvoase/ninja-builder/issues"
+  },
+  "homepage": "https://github.com/zacharyvoase/ninja-builder#readme",
+  "devDependencies": {
+    "@tsconfig/node18": "^1.0.1",
+    "mocha": "^10.0.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.7.4"
+  }
+}
