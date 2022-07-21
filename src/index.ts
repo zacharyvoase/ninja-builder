@@ -25,18 +25,18 @@ export interface NinjaBuildOpts {
 export class NinjaBuildFile extends NinjaNode {
   private readonly nodes: NinjaNode[] = [];
 
-  constructor(public readonly options: NinjaBuildOpts = {}) {
+  constructor(public readonly options?: NinjaBuildOpts) {
     super();
   }
 
   private preamble(): NinjaNode[] {
     const preambleNodes = [];
-    if (this.options.requiredVersion != null) {
+    if (this.options?.requiredVersion != null) {
       preambleNodes.push(
         new Binding('ninja_required_version', this.options.requiredVersion)
       );
     }
-    if (this.options.builddir != null) {
+    if (this.options?.builddir != null) {
       preambleNodes.push(new Binding('builddir', this.options.builddir));
     }
     return preambleNodes;
@@ -44,7 +44,7 @@ export class NinjaBuildFile extends NinjaNode {
 
   private postamble(): NinjaNode[] {
     const postambleNodes = [];
-    if (this.options.default != null) {
+    if (this.options?.default != null) {
       const def =
         typeof this.options.default === 'string'
           ? [this.options.default]
@@ -136,7 +136,7 @@ class Rule extends NinjaNode {
   constructor(
     public readonly name: string,
     public readonly command: string,
-    public readonly options: RuleOptions = {}
+    public readonly options?: RuleOptions
   ) {
     super();
   }
@@ -144,7 +144,7 @@ class Rule extends NinjaNode {
   override writeTo(w: Writable): void {
     w.write(`rule ${this.name}\n`);
     new Binding('command', this.command, INDENT).writeTo(w);
-    for (const [opt, value] of Object.entries(this.options)) {
+    for (const [opt, value] of Object.entries(this.options ?? {})) {
       if (typeof value === 'boolean') {
         if (value) {
           new Binding(opt, '1', INDENT).writeTo(w);
@@ -169,9 +169,9 @@ class Edge extends NinjaNode {
   constructor(
     public readonly outputs: string | string[],
     public readonly rule: string,
-    public readonly inputs: string | string[],
-    public readonly options: EdgeOptions = {},
-    public readonly bindings: Record<string, string> = {}
+    public readonly inputs?: string | string[],
+    public readonly options?: EdgeOptions,
+    public readonly bindings?: Record<string, string>
   ) {
     super();
   }
@@ -179,21 +179,21 @@ class Edge extends NinjaNode {
   override writeTo(w: Writable): void {
     const outputs = [
       fileList(this.outputs),
-      fileList(this.options.implicitOuts, '|'),
+      fileList(this.options?.implicitOuts, '|'),
     ].join('');
 
     const inputs = [
       fileList(this.inputs),
-      fileList(this.options.implicitDeps, '|'),
-      fileList(this.options.orderDeps, '||'),
-      fileList(this.options.validations, '|@'),
+      fileList(this.options?.implicitDeps, '|'),
+      fileList(this.options?.orderDeps, '||'),
+      fileList(this.options?.validations, '|@'),
     ].join('');
 
     w.write(`build ${outputs}: ${this.rule} ${inputs}\n`);
-    if (this.options.dyndep) {
+    if (this.options?.dyndep) {
       new Binding('dyndep', this.options.dyndep, INDENT).writeTo(w);
     }
-    if (this.options.pool) {
+    if (this.options?.pool) {
       new Binding('pool', this.options.pool, INDENT).writeTo(w);
     }
     for (const [name, value] of Object.entries(this.bindings ?? {})) {
